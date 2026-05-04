@@ -1,0 +1,486 @@
+{% extends 'events/base.html' %}
+
+{% block title %}{{ event.title }} - Barangay San Isidro EventCore{% endblock %}
+
+{% block content %}
+<section class="hero-card p-4 p-md-5 mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <span class="badge badge-soft rounded-pill">{{ event.get_event_type_display }}</span>
+            <h1 class="display-6 fw-bold mt-3 mb-2">{{ event.title }}</h1>
+            <p class="lead mb-2">{{ event.description }}</p>
+            <p class="mb-0 text-muted">
+                {{ event.location }} |
+                {{ event.start_datetime|date:"M d, Y" }}
+                {{ event.start_datetime|time:"g:i A" }} - {{ event.end_datetime|time:"g:i A" }}
+            </p>
+        </div>
+        <div class="text-lg-end">
+            <span class="badge text-bg-success mb-3">{{ event.get_status_display }}</span>
+            <div class="d-flex flex-wrap gap-2 justify-content-lg-end">
+                {% if can_self_register %}
+                    <form method="post" action="{% url 'participant_self_register' event.pk %}">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-eventcore">Register for Event</button>
+                    </form>
+                {% elif current_participant %}
+                    <span class="btn btn-outline-success disabled">
+                        {{ current_participant.get_registration_status_display }}
+                    </span>
+                {% endif %}
+                {% if can_manage_event %}
+                    <a href="{% url 'event_update' event.pk %}" class="btn btn-outline-success">Edit Event</a>
+                {% endif %}
+                <a href="{% url 'event_list' %}" class="btn btn-outline-secondary">Back to Events</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-6 col-lg">
+        <div class="feature-card p-3 text-center h-100">
+            <div class="stat-number">{{ event.organizer_assignments.count }}</div>
+            <div class="small text-muted">Organizers</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="feature-card p-3 text-center h-100">
+            <div class="stat-number">{{ event.volunteers.count }}</div>
+            <div class="small text-muted">Volunteers</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="feature-card p-3 text-center h-100">
+            <div class="stat-number">{{ event.confirmed_participants_count }}/{{ event.capacity }}</div>
+            <div class="small text-muted">Confirmed / Capacity</div>
+            {% if event.waitlisted_participants_count %}
+                <span class="badge text-bg-warning mt-2">{{ event.waitlisted_participants_count }} waitlisted</span>
+            {% endif %}
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="feature-card p-3 text-center h-100">
+            <div class="stat-number">{{ event.resources.count }}</div>
+            <div class="small text-muted">Resources</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg">
+        <div class="feature-card p-3 text-center h-100">
+            <div class="stat-number">
+                {% if event.average_rating %}{{ event.average_rating }}{% else %}-{% endif %}
+            </div>
+            <div class="small text-muted">Average Rating</div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Event Capacity</h2>
+            <p class="mb-1">{{ event.available_slots }} available slots</p>
+            <p class="small text-muted mb-0">Residents are waitlisted automatically when confirmed slots are full.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Budget Tracking</h2>
+            <p class="mb-1">Budget: PHP {{ event.budget }}</p>
+            <p class="small text-muted mb-0">Actual resource cost: PHP {{ event.total_actual_resource_cost }}</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Remaining Budget</h2>
+            <p class="mb-1">PHP {{ event.remaining_budget }}</p>
+            <p class="small text-muted mb-0">Based on actual costs entered in resources.</p>
+        </div>
+    </div>
+</section>
+
+<section class="mb-4">
+    <div class="d-flex flex-column flex-md-row justify-content-between gap-2 mb-3">
+        <div>
+            <h2 class="h4 section-title mb-1">Main Event Features</h2>
+            <p class="text-muted mb-0">Use these shortcuts to demonstrate the required Barangay San Isidro EventCore features.</p>
+        </div>
+    </div>
+    <div class="row g-3">
+        <div class="col-md-6 col-xl-3">
+            <a class="feature-card feature-link p-3 h-100" href="#participants">
+                <h3 class="h5 fw-bold">Register Participants</h3>
+                <p class="small text-muted mb-0">Add residents to the event participant list.</p>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <a class="feature-card feature-link p-3 h-100" href="#attendance">
+                <h3 class="h5 fw-bold">Track Attendance</h3>
+                <p class="small text-muted mb-0">Update present, absent, late, or excused records.</p>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <a class="feature-card feature-link p-3 h-100" href="#resources">
+                <h3 class="h5 fw-bold">Manage Resources</h3>
+                <p class="small text-muted mb-0">Record supplies, equipment, food, medicines, and venue needs.</p>
+            </a>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <a class="feature-card feature-link p-3 h-100" href="#feedback">
+                <h3 class="h5 fw-bold">Collect Feedback</h3>
+                <p class="small text-muted mb-0">Save ratings and comments after the event.</p>
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-lg-6">
+        <div class="table-card h-100">
+            <div class="p-3 border-bottom">
+                <h2 class="h4 section-title mb-1">Assign Organizers</h2>
+                <p class="text-muted mb-0">Choose barangay organizers responsible for this event.</p>
+            </div>
+            <div class="p-3">
+                {% if can_manage_event %}
+                    <form method="post" action="{% url 'organizer_add' event.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        {% for field in organizer_form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-eventcore">Assign Organizer</button>
+                        {% if current_profile.role == 'admin' or user.is_superuser %}
+                            <a href="{% url 'person_create' %}" class="btn btn-outline-secondary">Add Person</a>
+                        {% endif %}
+                    </form>
+                {% endif %}
+
+                {% if event.organizer_assignments.all %}
+                    <div class="list-group">
+                        {% for assignment in event.organizer_assignments.all %}
+                            <div class="list-group-item d-flex justify-content-between gap-3">
+                                <div>
+                                    <strong>{{ assignment.organizer.first_name }} {{ assignment.organizer.last_name }}</strong>
+                                    <div class="small text-muted">{{ assignment.responsibility|default:"No responsibility noted" }}</div>
+                                </div>
+                                {% if can_manage_event %}
+                                    <form method="post" action="{% url 'organizer_delete' assignment.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No organizers assigned yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6" id="attendance">
+        <div class="table-card h-100">
+            <div class="p-3 border-bottom">
+                <h2 class="h4 section-title mb-1">Assign Volunteers and Track Attendance</h2>
+                <p class="text-muted mb-0">Add volunteers and track their event attendance.</p>
+            </div>
+            <div class="p-3">
+                {% if can_manage_event %}
+                    <form method="post" action="{% url 'volunteer_add' event.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        {% for field in volunteer_form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-eventcore">Assign Volunteer</button>
+                        {% if current_profile.role == 'admin' or user.is_superuser %}
+                            <a href="{% url 'person_create' %}" class="btn btn-outline-secondary">Add Person</a>
+                        {% endif %}
+                    </form>
+                {% endif %}
+
+                {% if event.volunteers.all %}
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Volunteer</th>
+                                    <th>Task</th>
+                                    <th>Attendance</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for volunteer in event.volunteers.all %}
+                                    <tr>
+                                        <td>{{ volunteer.user.first_name }} {{ volunteer.user.last_name }}</td>
+                                        <td>{{ volunteer.task_assigned|default:"-" }}</td>
+                                        <td>
+                                            {% if can_track_attendance %}
+                                                <form method="post" action="{% url 'volunteer_attendance_update' volunteer.pk %}" class="d-flex gap-2">
+                                                    {% csrf_token %}
+                                                    <select name="attendance_status" class="form-select form-select-sm">
+                                                        {% for value, label in volunteer_attendance_choices %}
+                                                            <option value="{{ value }}" {% if value == volunteer.attendance_status %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">Save</button>
+                                                </form>
+                                            {% else %}
+                                                <span class="badge badge-soft">{{ volunteer.get_attendance_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            {% if can_manage_event %}
+                                                <form method="post" action="{% url 'volunteer_delete' volunteer.pk %}">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No volunteers assigned yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6" id="participants">
+        <div class="table-card h-100">
+            <div class="p-3 border-bottom">
+                <h2 class="h4 section-title mb-1">Register Participants and Track Attendance</h2>
+                <p class="text-muted mb-0">
+                    Register residents and update attendance during the event.
+                    Capacity: {{ event.confirmed_participants_count }}/{{ event.capacity }},
+                    Waitlist: {{ event.waitlisted_participants_count }}
+                </p>
+            </div>
+            <div class="p-3">
+                {% if can_manage_event %}
+                    <form method="post" action="{% url 'participant_add' event.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        {% for field in participant_form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-eventcore">Register Participant</button>
+                        {% if current_profile.role == 'admin' or user.is_superuser %}
+                            <a href="{% url 'person_create' %}" class="btn btn-outline-secondary">Add Person</a>
+                        {% endif %}
+                    </form>
+                {% elif can_self_register %}
+                    <form method="post" action="{% url 'participant_self_register' event.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-eventcore">Register Myself</button>
+                    </form>
+                {% endif %}
+
+                {% if event.participants.all %}
+                    <div class="table-responsive">
+                        <table class="table table-sm align-middle">
+                            <thead>
+                                <tr>
+                                    <th>Participant</th>
+                                    <th>Registration</th>
+                                    <th>Attendance</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for participant in event.participants.all %}
+                                    <tr>
+                                        <td>{{ participant.user.first_name }} {{ participant.user.last_name }}</td>
+                                        <td>
+                                            <span class="badge {% if participant.registration_status == 'waitlisted' %}text-bg-warning{% else %}badge-soft{% endif %}">
+                                                {{ participant.get_registration_status_display }}
+                                            </span>
+                                            {% if participant.waitlist_position %}
+                                                <div class="small text-muted">Position #{{ participant.waitlist_position }}</div>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if can_track_attendance %}
+                                                <form method="post" action="{% url 'participant_attendance_update' participant.pk %}" class="d-flex gap-2">
+                                                    {% csrf_token %}
+                                                    <select name="attendance_status" class="form-select form-select-sm">
+                                                        {% for value, label in participant_attendance_choices %}
+                                                            <option value="{{ value }}" {% if value == participant.attendance_status %}selected{% endif %}>{{ label }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <button type="submit" class="btn btn-sm btn-outline-success">Save</button>
+                                                </form>
+                                            {% else %}
+                                                <span class="badge badge-soft">{{ participant.get_attendance_status_display }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td class="text-end">
+                                            {% if can_manage_event %}
+                                                {% if participant.registration_status == 'waitlisted' and event.available_slots > 0 %}
+                                                    <form method="post" action="{% url 'participant_promote' participant.pk %}" class="d-inline">
+                                                        {% csrf_token %}
+                                                        <button type="submit" class="btn btn-sm btn-outline-success">Promote</button>
+                                                    </form>
+                                                {% endif %}
+                                                <form method="post" action="{% url 'participant_delete' participant.pk %}" class="d-inline">
+                                                    {% csrf_token %}
+                                                    <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                                </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No participants registered yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6" id="resources">
+        <div class="table-card h-100">
+            <div class="p-3 border-bottom">
+                <h2 class="h4 section-title mb-1">Manage Resources</h2>
+                <p class="text-muted mb-0">Track supplies, equipment, venue needs, food, and medicines.</p>
+            </div>
+            <div class="p-3">
+                <div class="alert alert-success">
+                    Budget: PHP {{ event.budget }} |
+                    Estimated: PHP {{ event.total_estimated_resource_cost }} |
+                    Actual: PHP {{ event.total_actual_resource_cost }} |
+                    Remaining: PHP {{ event.remaining_budget }}
+                </div>
+
+                {% if can_manage_event %}
+                    <form method="post" action="{% url 'resource_add' event.pk %}" class="mb-4">
+                        {% csrf_token %}
+                        {% for field in resource_form %}
+                            <div class="mb-3">
+                                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endfor %}
+                        <button type="submit" class="btn btn-eventcore">Add Resource</button>
+                    </form>
+                {% endif %}
+
+                {% if event.resources.all %}
+                    <div class="list-group">
+                        {% for resource in event.resources.all %}
+                            <div class="list-group-item d-flex justify-content-between gap-3">
+                                <div>
+                                    <strong>{{ resource.name }}</strong>
+                                    <div class="small text-muted">
+                                        {{ resource.get_category_display }} | {{ resource.quantity }} {{ resource.unit }} | {{ resource.get_status_display }}
+                                    </div>
+                                    <div class="small text-muted">
+                                        Estimated PHP {{ resource.estimated_cost }} | Actual PHP {{ resource.actual_cost }}
+                                    </div>
+                                    {% if resource.notes %}
+                                        <div class="small">{{ resource.notes }}</div>
+                                    {% endif %}
+                                </div>
+                                {% if can_manage_event %}
+                                    <form method="post" action="{% url 'resource_delete' resource.pk %}">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                    </form>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No resources listed yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-12" id="feedback">
+        <div class="table-card">
+            <div class="p-3 border-bottom">
+                <h2 class="h4 section-title mb-1">Collect Feedback</h2>
+                <p class="text-muted mb-0">Record ratings and comments to help improve future barangay events.</p>
+            </div>
+            <div class="p-3">
+                <form method="post" action="{% url 'feedback_add' event.pk %}" class="row g-3 mb-4">
+                    {% csrf_token %}
+                    {% for field in feedback_form %}
+                        {% if field.name == 'participant' and current_profile.role == 'resident' %}
+                        {% else %}
+                            <div class="{% if field.name == 'comments' %}col-12{% else %}col-md-6{% endif %}">
+                                <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                                {{ field }}
+                                {% for error in field.errors %}
+                                    <div class="text-danger small">{{ error }}</div>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                    {% endfor %}
+                    <div class="col-12">
+                        <button type="submit" class="btn btn-eventcore">Submit Feedback</button>
+                    </div>
+                </form>
+
+                {% if event.feedback.all %}
+                    <div class="row g-3">
+                        {% for feedback in event.feedback.all %}
+                            <div class="col-md-6 col-xl-4">
+                                <div class="feature-card p-3 h-100">
+                                    <div class="d-flex justify-content-between gap-3">
+                                        <strong>{{ feedback.get_rating_display }}</strong>
+                                        {% if can_manage_event %}
+                                            <form method="post" action="{% url 'feedback_delete' feedback.pk %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-sm btn-outline-danger">Remove</button>
+                                            </form>
+                                        {% endif %}
+                                    </div>
+                                    <div class="small text-muted mb-2">
+                                        {% if feedback.participant %}
+                                            {{ feedback.participant.user.first_name }} {{ feedback.participant.user.last_name }}
+                                        {% else %}
+                                            Anonymous
+                                        {% endif %}
+                                        | {{ feedback.submitted_at|date:"M d, Y" }}
+                                    </div>
+                                    <p class="mb-0">{{ feedback.comments|default:"No comments provided." }}</p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-muted mb-0">No feedback submitted yet.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

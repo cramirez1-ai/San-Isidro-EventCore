@@ -1,0 +1,84 @@
+{% extends 'events/base.html' %}
+
+{% block title %}People - Barangay San Isidro EventCore{% endblock %}
+
+{% block content %}
+<section class="hero-card p-4 p-md-5 mb-4">
+    <div class="d-flex flex-column flex-lg-row justify-content-between gap-3">
+        <div>
+            <span class="badge badge-soft rounded-pill">Users Table</span>
+            <h1 class="display-6 fw-bold mt-3 mb-2">People</h1>
+            <p class="lead mb-0">
+                Add organizers, volunteers, and residents here before assigning them to barangay events.
+            </p>
+        </div>
+        <div class="text-lg-end">
+            <a href="{% url 'person_create' %}" class="btn btn-eventcore btn-lg">Add Person</a>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    {% for label, count in role_cards %}
+        <div class="col-6 col-lg-3">
+            <div class="feature-card p-3 text-center h-100">
+                <div class="h3 fw-bold mb-0">{{ count }}</div>
+                <div class="small text-muted">{{ label }}</div>
+            </div>
+        </div>
+    {% endfor %}
+</section>
+
+<section class="table-card">
+    <div class="p-3 border-bottom">
+        <h2 class="h4 mb-1">Registered People</h2>
+        <p class="text-muted mb-0">These records are used when assigning organizers, volunteers, and participants.</p>
+    </div>
+
+    {% if users %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-success">
+                    <tr>
+                        <th>Name</th>
+                        <th>Role</th>
+                        <th>Email</th>
+                        <th>Contact</th>
+                        <th>Login</th>
+                        <th>Address</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for person in users %}
+                        <tr>
+                            <td><strong>{{ person.first_name }} {{ person.last_name }}</strong></td>
+                            <td><span class="badge badge-soft">{{ person.get_role_display }}</span></td>
+                            <td>{{ person.email }}</td>
+                            <td>{{ person.contact_number|default:"-" }}</td>
+                            <td>
+                                {% if person.auth_user %}
+                                    <span class="badge text-bg-success">{{ person.auth_user.username }}</span>
+                                {% else %}
+                                    <span class="badge text-bg-secondary">No login</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ person.address|default:"-" }}</td>
+                            <td class="text-end">
+                                <a href="{% url 'person_update' person.pk %}" class="btn btn-sm btn-outline-success">Edit</a>
+                                <a href="{% url 'person_delete' person.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="p-5 text-center">
+            <h3 class="h5">No people yet</h3>
+            <p class="text-muted">Add people first so they can be selected in event assignments.</p>
+            <a href="{% url 'person_create' %}" class="btn btn-eventcore">Add First Person</a>
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

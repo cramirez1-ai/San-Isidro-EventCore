@@ -1,0 +1,164 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Barangay San Isidro EventCore Events{% endblock %}
+
+{% block content %}
+<section class="hero-card p-4 p-md-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="badge badge-soft rounded-pill mb-3">Barangay San Isidro Events Organizer System</span>
+            <h1 class="display-6 fw-bold mb-3">Barangay San Isidro, Surigao City, Surigao del Norte EventCore</h1>
+            <p class="lead mb-0">
+                Plan, organize, and monitor Barangay San Isidro community events like clean-up drives, feeding programs,
+                medical missions, sports tournaments, barangay assemblies, and disaster seminars.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <span class="quick-chip">Searchable events</span>
+                <span class="quick-chip">Capacity and waitlist</span>
+                <span class="quick-chip">Budget-aware resources</span>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            {% if can_manage_events %}
+                <a href="{% url 'event_create' %}" class="btn btn-eventcore btn-lg">Add New Event</a>
+            {% endif %}
+            {% if current_profile.role == 'admin' or user.is_superuser %}
+                <a href="{% url 'people_list' %}" class="btn btn-outline-success btn-lg mt-2 mt-lg-0">Manage People</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Planning</h2>
+            <p class="mb-0 small text-muted">Create barangay events and assign organizers before the event day.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Operations</h2>
+            <p class="mb-0 small text-muted">Assign volunteers, register participants, and track attendance.</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Evaluation</h2>
+            <p class="mb-0 small text-muted">Manage resources and collect feedback after the activity.</p>
+        </div>
+    </div>
+</section>
+
+<section class="table-card mb-4">
+    <form method="get" class="row g-3 align-items-end p-3">
+        <div class="col-12">
+            <span class="badge badge-soft rounded-pill">Smart Event Finder</span>
+        </div>
+        <div class="col-md-4">
+            <label for="q" class="form-label fw-semibold">Search events</label>
+            <input type="search" name="q" id="q" value="{{ query }}" class="form-control" placeholder="Title, location, or description">
+        </div>
+        <div class="col-md-3">
+            <label for="event_type" class="form-label fw-semibold">Event type</label>
+            <select name="event_type" id="event_type" class="form-select">
+                <option value="">All types</option>
+                {% for value, label in event_type_choices %}
+                    <option value="{{ value }}" {% if value == selected_event_type %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-3">
+            <label for="status" class="form-label fw-semibold">Status</label>
+            <select name="status" id="status" class="form-select">
+                <option value="">All statuses</option>
+                {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if value == selected_status %}selected{% endif %}>{{ label }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="col-md-2 d-grid">
+            <button type="submit" class="btn btn-eventcore">Filter</button>
+        </div>
+        {% if query or selected_event_type or selected_status %}
+            <div class="col-12">
+                <a href="{% url 'event_list' %}" class="btn btn-sm btn-outline-secondary">Clear filters</a>
+            </div>
+        {% endif %}
+    </form>
+</section>
+
+<section class="table-card">
+    <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+        <div>
+            <h2 class="h4 mb-1">Community Events</h2>
+            <p class="text-muted mb-0">Search, filter, and manage barangay events based on your role.</p>
+        </div>
+    </div>
+
+    {% if events %}
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead class="table-success">
+                    <tr>
+                        <th>Event</th>
+                        <th>Type</th>
+                        <th>Location</th>
+                        <th>Schedule</th>
+                        <th>Records</th>
+                        <th>Status</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for event in events %}
+                        <tr>
+                            <td>
+                                <strong>{{ event.title }}</strong>
+                                <div class="text-muted small">{{ event.description|truncatechars:80 }}</div>
+                            </td>
+                            <td>{{ event.get_event_type_display }}</td>
+                            <td>{{ event.location }}</td>
+                            <td>
+                                <div>{{ event.start_datetime|date:"M d, Y" }}</div>
+                                <div class="text-muted small">{{ event.start_datetime|time:"g:i A" }} - {{ event.end_datetime|time:"g:i A" }}</div>
+                            </td>
+                            <td>
+                                <div class="small">{{ event.organizer_assignments.count }} organizers</div>
+                                <div class="small">{{ event.volunteers.count }} volunteers</div>
+                                <div class="small">{{ event.participants.count }} participants</div>
+                                <div class="small">{{ event.confirmed_participants_count }}/{{ event.capacity }} confirmed</div>
+                                <div class="small">{{ event.waitlisted_participants_count }} waitlisted</div>
+                                <div class="small">{{ event.resources.count }} resources</div>
+                                <div class="small">{{ event.feedback.count }} feedback</div>
+                            </td>
+                            <td>
+                                <span class="badge badge-soft">{{ event.get_status_display }}</span>
+                                {% if event.is_full %}
+                                    <span class="badge text-bg-warning d-block mt-1">Full</span>
+                                {% endif %}
+                            </td>
+                            <td class="text-end">
+                                <a href="{% url 'event_detail' event.pk %}" class="btn btn-sm btn-eventcore">Manage</a>
+                                {% if can_manage_events %}
+                                    <a href="{% url 'event_update' event.pk %}" class="btn btn-sm btn-outline-success">Edit</a>
+                                    <a href="{% url 'event_delete' event.pk %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% else %}
+        <div class="p-5 text-center">
+            <span class="badge badge-soft rounded-pill mb-3">Empty Board</span>
+            <h3 class="h4 fw-bold">No matching events found</h3>
+            <p class="text-muted">Try clearing filters or create the first barangay event for this board.</p>
+            {% if can_manage_events %}
+                <a href="{% url 'event_create' %}" class="btn btn-eventcore">Add First Event</a>
+            {% endif %}
+        </div>
+    {% endif %}
+</section>
+{% endblock %}

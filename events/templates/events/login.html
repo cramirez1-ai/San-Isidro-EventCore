@@ -1,0 +1,67 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Login - Barangay San Isidro EventCore{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-5">
+        <div class="hero-card p-4 p-md-5">
+            <span class="badge badge-soft rounded-pill">User Authentication</span>
+            <h1 class="h2 fw-bold mt-3">Login to Barangay San Isidro EventCore</h1>
+            <p class="text-muted">Use your Django account to access role-based features.</p>
+            <div class="d-flex flex-wrap gap-2 mb-3">
+                <span class="quick-chip">Dashboard</span>
+                <span class="quick-chip">Events</span>
+                <span class="quick-chip">Notifications</span>
+            </div>
+
+            <form method="post" class="mt-4">
+                {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="{{ form.username.id_for_label }}" class="form-label fw-semibold">Username</label>
+                    <input type="text" name="{{ form.username.html_name }}" id="{{ form.username.id_for_label }}" class="form-control" required autofocus>
+                </div>
+                <div class="mb-3">
+                    <label for="{{ form.password.id_for_label }}" class="form-label fw-semibold">Password</label>
+                    <input type="password" name="{{ form.password.html_name }}" id="{{ form.password.id_for_label }}" class="form-control" required>
+                </div>
+
+                <button type="submit" class="btn btn-eventcore w-100">Login</button>
+            </form>
+
+            <p class="text-center mt-3 mb-0">
+                <a href="{% url 'password_reset' %}">Forgot password?</a>
+            </p>
+
+            <p class="text-center text-muted mt-3 mb-0">
+                No account yet? <a href="{% url 'register' %}">Register here</a>.
+            </p>
+        </div>
+    </div>
+    <div class="col-lg-5 mt-4 mt-lg-0">
+        <div class="feature-card p-4 h-100">
+            <h2 class="h4 fw-bold">Role-based workspace</h2>
+            <p class="text-muted">Barangay San Isidro EventCore shows actions based on the user role, which keeps the interface cleaner.</p>
+            <div class="list-group list-group-flush">
+                <div class="list-group-item px-0">
+                    <strong>Admin</strong>
+                    <div class="small text-muted">Manage people, roles, events, and all records.</div>
+                </div>
+                <div class="list-group-item px-0">
+                    <strong>Organizer</strong>
+                    <div class="small text-muted">Create events, assign teams, and manage resources.</div>
+                </div>
+                <div class="list-group-item px-0">
+                    <strong>Volunteer / Resident</strong>
+                    <div class="small text-muted">Track attendance, register, and submit feedback where allowed.</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

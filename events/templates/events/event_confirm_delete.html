@@ -1,0 +1,26 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Delete Event - Barangay San Isidro EventCore{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-7">
+        <div class="hero-card p-4 p-md-5">
+            <span class="badge text-bg-danger rounded-pill mb-3">Delete Confirmation</span>
+            <h1 class="h2 fw-bold">Delete "{{ event.title }}"?</h1>
+            <p class="text-muted">
+                This will remove the event from the system. If this is only a schedule change,
+                choose cancel and edit the event instead.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                <div class="d-flex gap-2">
+                    <button type="submit" class="btn btn-danger">Yes, Delete Event</button>
+                    <a href="{% url 'event_list' %}" class="btn btn-outline-secondary">Cancel</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

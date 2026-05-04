@@ -1,0 +1,147 @@
+{% extends 'events/base.html' %}
+
+{% block title %}Dashboard - Barangay San Isidro EventCore{% endblock %}
+
+{% block content %}
+<section class="hero-card p-4 p-md-5 mb-4">
+    <div class="row align-items-center g-4">
+        <div class="col-lg-8">
+            <span class="badge badge-soft rounded-pill mb-3">Dashboard with Statistics</span>
+            <h1 class="display-6 fw-bold mb-3">Barangay San Isidro EventCore Control Center</h1>
+            <p class="lead mb-0">
+                Monitor community events for Barangay San Isidro, Surigao City, Surigao del Norte.
+            </p>
+            <div class="d-flex flex-wrap gap-2 mt-4">
+                <span class="quick-chip">Capacity and waitlist ready</span>
+                <span class="quick-chip">Role-protected actions</span>
+                <span class="quick-chip">SQLite-backed records</span>
+            </div>
+        </div>
+        <div class="col-lg-4 text-lg-end">
+            <a href="{% url 'event_list' %}" class="btn btn-eventcore btn-lg">View Events</a>
+            {% if current_profile.role == 'admin' or current_profile.role == 'organizer' or user.is_superuser %}
+                <a href="{% url 'event_create' %}" class="btn btn-outline-success btn-lg mt-2">Create Event</a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-4">
+        <a href="{% url 'event_list' %}" class="feature-card feature-link p-3 h-100">
+            <span class="badge badge-soft rounded-pill mb-2">Step 1</span>
+            <h2 class="h5 fw-bold">Find or create an event</h2>
+            <p class="small text-muted mb-0">Use search and filters to locate barangay activities quickly.</p>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'event_list' %}" class="feature-card feature-link p-3 h-100">
+            <span class="badge badge-soft rounded-pill mb-2">Step 2</span>
+            <h2 class="h5 fw-bold">Open the manage page</h2>
+            <p class="small text-muted mb-0">Assign people, register participants, and update attendance in one place.</p>
+        </a>
+    </div>
+    <div class="col-md-4">
+        <a href="{% url 'notification_list' %}" class="feature-card feature-link p-3 h-100">
+            <span class="badge badge-soft rounded-pill mb-2">Step 3</span>
+            <h2 class="h5 fw-bold">Review updates</h2>
+            <p class="small text-muted mb-0">Check feedback, budget totals, and role-based notifications.</p>
+        </a>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+        <div class="feature-card p-3 h-100">
+            <div class="stat-number">{{ stats.total_events }}</div>
+            <div class="small text-muted">Total Events</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="feature-card p-3 h-100">
+            <div class="stat-number">{{ stats.upcoming_events }}</div>
+            <div class="small text-muted">Upcoming Events</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="feature-card p-3 h-100">
+            <div class="stat-number">{{ stats.confirmed_participants }}</div>
+            <div class="small text-muted">Confirmed Participants</div>
+        </div>
+    </div>
+    <div class="col-6 col-lg-3">
+        <div class="feature-card p-3 h-100">
+            <div class="stat-number">{{ stats.waitlisted_participants }}</div>
+            <div class="small text-muted">Waitlisted Participants</div>
+        </div>
+    </div>
+</section>
+
+<section class="row g-3 mb-4">
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Budget</h2>
+            <p class="h4 mb-1">PHP {{ stats.total_budget }}</p>
+            <p class="small text-muted mb-0">Total event budget</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Resource Cost</h2>
+            <p class="h4 mb-1">PHP {{ stats.actual_resource_cost }}</p>
+            <p class="small text-muted mb-0">Actual resource cost entered</p>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="feature-card p-3 h-100">
+            <h2 class="h6 section-title">Average Rating</h2>
+            <p class="h4 mb-1">{% if stats.average_rating %}{{ stats.average_rating }}/5{% else %}No ratings yet{% endif %}</p>
+            <p class="small text-muted mb-0">Based on submitted feedback</p>
+        </div>
+    </div>
+</section>
+
+<section class="row g-4">
+    <div class="col-lg-6">
+        <div class="table-card h-100">
+            <div class="p-3 border-bottom">
+                <h2 class="h4 mb-1">Upcoming Events</h2>
+                <p class="text-muted mb-0">Next barangay activities on the calendar.</p>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for event in upcoming_events_list %}
+                    <a href="{% url 'event_detail' event.pk %}" class="list-group-item list-group-item-action">
+                        <strong>{{ event.title }}</strong>
+                        <div class="small text-muted">
+                            {{ event.start_datetime|date:"M d, Y" }} |
+                            {{ event.confirmed_participants_count }}/{{ event.capacity }} confirmed
+                        </div>
+                    </a>
+                {% empty %}
+                    <div class="p-4 text-muted">No upcoming events yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6">
+        <div class="table-card h-100">
+            <div class="p-3 border-bottom">
+                <h2 class="h4 mb-1">Recent Notifications</h2>
+                <p class="text-muted mb-0">Basic in-app notices for your account.</p>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for notification in recent_notifications %}
+                    <div class="list-group-item">
+                        <strong>{{ notification.title }}</strong>
+                        <div class="small text-muted">{{ notification.created_at|date:"M d, Y g:i A" }}</div>
+                        <p class="mb-0">{{ notification.message }}</p>
+                    </div>
+                {% empty %}
+                    <div class="p-4 text-muted">No notifications yet.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
