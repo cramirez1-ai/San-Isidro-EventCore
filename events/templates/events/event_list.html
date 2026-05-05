@@ -59,7 +59,7 @@
             <label for="q" class="form-label fw-semibold">Search events</label>
             <input type="search" name="q" id="q" value="{{ query }}" class="form-control" placeholder="Title, location, or description">
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <label for="event_type" class="form-label fw-semibold">Event type</label>
             <select name="event_type" id="event_type" class="form-select">
                 <option value="">All types</option>
@@ -68,7 +68,7 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <label for="status" class="form-label fw-semibold">Status</label>
             <select name="status" id="status" class="form-select">
                 <option value="">All statuses</option>
@@ -77,27 +77,10 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="col-md-2">
-            <label for="timeframe" class="form-label fw-semibold">Timeframe</label>
-            <select name="timeframe" id="timeframe" class="form-select">
-                <option value="">Any time</option>
-                {% for value, label in timeframe_choices %}
-                    <option value="{{ value }}" {% if value == selected_timeframe %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
-        <div class="col-md-2">
-            <label for="sort" class="form-label fw-semibold">Sort</label>
-            <select name="sort" id="sort" class="form-select">
-                {% for value, label in sort_choices %}
-                    <option value="{{ value }}" {% if value == selected_sort %}selected{% endif %}>{{ label }}</option>
-                {% endfor %}
-            </select>
-        </div>
         <div class="col-md-2 d-grid">
             <button type="submit" class="btn btn-eventcore">Filter</button>
         </div>
-        {% if query or selected_event_type or selected_status or selected_timeframe or selected_sort != 'soonest' %}
+        {% if query or selected_event_type or selected_status %}
             <div class="col-12">
                 <a href="{% url 'event_list' %}" class="btn btn-sm btn-outline-secondary">Clear filters</a>
             </div>
@@ -153,9 +136,6 @@
                                 <span class="badge badge-soft">{{ event.get_status_display }}</span>
                                 {% if event.is_full %}
                                     <span class="badge text-bg-warning d-block mt-1">Full</span>
-                                {% endif %}
-                                {% if event.needs_status_review %}
-                                    <span class="badge text-bg-danger d-block mt-1">Needs review</span>
                                 {% endif %}
                             </td>
                             <td class="text-end">

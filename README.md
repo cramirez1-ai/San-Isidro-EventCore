@@ -26,7 +26,7 @@ Barangay San Isidro EventCore helps barangay officials and organizers manage eve
 - Forgot password / password reset using Django's built-in reset flow
 - Role-based access control for admins, organizers, volunteers, and residents
 - Create, view, update, and delete barangay events
-- Search and filter events by keyword, event type, status, timeframe, and sort order
+- Search and filter events by keyword, event type, and status
 - Add people as admins, barangay organizers, volunteers, or residents
 - Assign organizers to events
 - Assign volunteers and update their attendance
@@ -35,7 +35,7 @@ Barangay San Isidro EventCore helps barangay officials and organizers manage eve
 - Manage event resources such as supplies, equipment, food, medicine, and venue needs
 - Track event budget, estimated resource costs, and actual resource costs
 - Collect participant feedback and ratings
-- View dashboard statistics, active events, and past events that still need status review
+- View dashboard statistics
 - Receive basic in-app notifications
 - Use system validations and database constraints for dates, capacity, ratings, quantities, and costs
 
@@ -98,28 +98,12 @@ Barangay San Isidro EventCore also links its `users` table to Django's built-in 
    http://127.0.0.1:8000/admin/
    ```
 
-## Deployment Notes
-
-The repository ignores generated build files such as `__pycache__`, `.pyc`, logs, and the local SQLite database. Commit the `.gitignore` and staged deletions so deployment platforms receive only source files.
-
-Set these environment variables on your deployment platform:
-
-- `SECRET_KEY`: a private Django secret key
-- `DEBUG`: `False`
-- `ALLOWED_HOSTS`: your deploy domain, for example `your-app.onrender.com`
-
-The root `Procfile` starts the app with Gunicorn:
-
-```text
-web: gunicorn EventCore.wsgi:application
-```
-
 ## Beginner Presentation Guide
 
 - Use the login/register pages to demonstrate user authentication.
 - Use different roles to explain access control: admins manage people, organizers manage events, volunteers can help track attendance, and residents can register for events.
 - Use the dashboard to demonstrate statistics for events, participants, waitlists, budgets, resources, feedback, and notifications.
-- Use the events page to demonstrate search, filtering, timeframe views, and sorting.
+- Use the events page to demonstrate search and filtering.
 - Open an event's **Manage** page to demonstrate organizer assignment, volunteer assignment, participant registration, attendance tracking, resource management, and feedback collection.
 - Set a small event capacity, then register more residents to demonstrate the waitlist system.
 - Use the **People** page to add organizers, volunteers, and residents before assigning them to an event.
