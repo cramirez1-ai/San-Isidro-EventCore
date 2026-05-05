@@ -1,0 +1,450 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Barangay San Isidro EventCore</title>
+    <meta name="description" content="Barangay San Isidro EventCore is a community events website for announcements, schedules, volunteer coordination, and resident updates.">
+    <style>
+        :root {
+            --green: #16543d;
+            --deep: #0d241b;
+            --mint: #e8f6ee;
+            --gold: #f2b84b;
+            --coral: #c85f39;
+            --ink: #17251d;
+            --muted: #63746c;
+            --line: rgba(22, 84, 61, .16);
+            --paper: #fffaf1;
+            --white: #ffffff;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: var(--paper);
+            color: var(--ink);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+        }
+
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        .nav {
+            align-items: center;
+            background: rgba(13, 36, 27, .96);
+            color: var(--white);
+            display: flex;
+            gap: 24px;
+            justify-content: space-between;
+            min-height: 72px;
+            padding: 0 6vw;
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        .brand {
+            align-items: center;
+            display: flex;
+            font-weight: 800;
+            gap: 10px;
+            letter-spacing: .01em;
+        }
+
+        .mark {
+            align-items: center;
+            background: var(--gold);
+            border-radius: 8px;
+            color: var(--deep);
+            display: inline-flex;
+            height: 38px;
+            justify-content: center;
+            width: 38px;
+        }
+
+        .nav-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .nav-links a {
+            border-radius: 999px;
+            color: rgba(255, 255, 255, .82);
+            font-size: .95rem;
+            padding: 8px 13px;
+        }
+
+        .nav-links a:hover {
+            background: rgba(255, 255, 255, .12);
+            color: var(--white);
+        }
+
+        .hero {
+            background:
+                linear-gradient(90deg, rgba(13, 36, 27, .92), rgba(22, 84, 61, .72)),
+                url("https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=1800&q=80");
+            background-position: center;
+            background-size: cover;
+            color: var(--white);
+            min-height: calc(100vh - 72px);
+            padding: 88px 6vw 64px;
+        }
+
+        .hero-inner {
+            max-width: 980px;
+        }
+
+        .eyebrow {
+            background: rgba(242, 184, 75, .18);
+            border: 1px solid rgba(242, 184, 75, .44);
+            border-radius: 999px;
+            display: inline-block;
+            font-size: .88rem;
+            font-weight: 700;
+            margin-bottom: 18px;
+            padding: 7px 13px;
+        }
+
+        h1,
+        h2,
+        h3 {
+            line-height: 1.12;
+            margin: 0;
+        }
+
+        h1 {
+            font-size: clamp(2.6rem, 7vw, 5.9rem);
+            max-width: 860px;
+        }
+
+        .hero p {
+            color: rgba(255, 255, 255, .88);
+            font-size: clamp(1.05rem, 2vw, 1.35rem);
+            max-width: 680px;
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 30px;
+        }
+
+        .button {
+            align-items: center;
+            border-radius: 999px;
+            display: inline-flex;
+            font-weight: 800;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 20px;
+        }
+
+        .button-primary {
+            background: var(--gold);
+            color: var(--deep);
+        }
+
+        .button-secondary {
+            border: 1px solid rgba(255, 255, 255, .56);
+            color: var(--white);
+        }
+
+        main section {
+            padding: 78px 6vw;
+        }
+
+        .section-head {
+            margin: 0 auto 34px;
+            max-width: 780px;
+            text-align: center;
+        }
+
+        .section-head h2 {
+            color: var(--green);
+            font-size: clamp(2rem, 4vw, 3.4rem);
+            margin-bottom: 12px;
+        }
+
+        .section-head p {
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .grid {
+            display: grid;
+            gap: 18px;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            margin: 0 auto;
+            max-width: 1120px;
+        }
+
+        .card {
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            box-shadow: 0 18px 48px rgba(22, 84, 61, .08);
+            padding: 26px;
+        }
+
+        .card h3 {
+            color: var(--deep);
+            font-size: 1.25rem;
+            margin-bottom: 8px;
+        }
+
+        .card p {
+            color: var(--muted);
+            margin: 0;
+        }
+
+        .events {
+            background: var(--mint);
+        }
+
+        .event-list {
+            display: grid;
+            gap: 14px;
+            margin: 0 auto;
+            max-width: 980px;
+        }
+
+        .event-item {
+            align-items: center;
+            background: var(--white);
+            border: 1px solid var(--line);
+            border-radius: 8px;
+            display: grid;
+            gap: 18px;
+            grid-template-columns: 120px 1fr auto;
+            padding: 18px;
+        }
+
+        .date {
+            background: var(--deep);
+            border-radius: 8px;
+            color: var(--white);
+            padding: 14px 10px;
+            text-align: center;
+        }
+
+        .date strong {
+            display: block;
+            font-size: 1.7rem;
+            line-height: 1;
+        }
+
+        .tag {
+            background: rgba(200, 95, 57, .12);
+            border-radius: 999px;
+            color: var(--coral);
+            display: inline-block;
+            font-size: .85rem;
+            font-weight: 800;
+            padding: 6px 10px;
+        }
+
+        .split {
+            align-items: center;
+            display: grid;
+            gap: 42px;
+            grid-template-columns: 1.1fr .9fr;
+            margin: 0 auto;
+            max-width: 1120px;
+        }
+
+        .photo {
+            aspect-ratio: 4 / 3;
+            background:
+                linear-gradient(180deg, rgba(22, 84, 61, .12), rgba(22, 84, 61, .02)),
+                url("https://images.unsplash.com/photo-1559027615-cd4628902d4a?auto=format&fit=crop&w=1200&q=80");
+            background-position: center;
+            background-size: cover;
+            border-radius: 8px;
+            box-shadow: 0 22px 60px rgba(13, 36, 27, .18);
+        }
+
+        .contact {
+            background: var(--deep);
+            color: var(--white);
+        }
+
+        .contact .section-head h2,
+        .contact .section-head p {
+            color: var(--white);
+        }
+
+        .footer {
+            background: #081811;
+            color: rgba(255, 255, 255, .72);
+            padding: 24px 6vw;
+            text-align: center;
+        }
+
+        @media (max-width: 820px) {
+            .nav {
+                align-items: flex-start;
+                flex-direction: column;
+                padding-bottom: 14px;
+                padding-top: 14px;
+            }
+
+            .hero {
+                min-height: auto;
+                padding-top: 58px;
+            }
+
+            .grid,
+            .split,
+            .event-item {
+                grid-template-columns: 1fr;
+            }
+
+            .event-item {
+                align-items: start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="nav">
+        <a class="brand" href="#top" aria-label="Barangay San Isidro EventCore home">
+            <span class="mark">EC</span>
+            <span>San Isidro EventCore</span>
+        </a>
+        <nav class="nav-links" aria-label="Main navigation">
+            <a href="#services">Services</a>
+            <a href="#events">Events</a>
+            <a href="#volunteer">Volunteer</a>
+            <a href="#contact">Contact</a>
+        </nav>
+    </header>
+
+    <section class="hero" id="top">
+        <div class="hero-inner">
+            <span class="eyebrow">Barangay San Isidro, Surigao City</span>
+            <h1>Community events, updates, and volunteer opportunities in one place.</h1>
+            <p>
+                EventCore is the public website for Barangay San Isidro activities, helping residents discover upcoming programs,
+                join volunteer efforts, and stay informed about local initiatives.
+            </p>
+            <div class="actions">
+                <a class="button button-primary" href="#events">View Events</a>
+                <a class="button button-secondary" href="#contact">Contact Barangay Office</a>
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <section id="services">
+            <div class="section-head">
+                <h2>What This Website Shares</h2>
+                <p>Clear public information for residents, volunteers, and community partners.</p>
+            </div>
+            <div class="grid">
+                <article class="card">
+                    <h3>Event Announcements</h3>
+                    <p>See upcoming clean-up drives, feeding programs, assemblies, medical missions, and seminars.</p>
+                </article>
+                <article class="card">
+                    <h3>Volunteer Coordination</h3>
+                    <p>Learn where help is needed and how residents can support barangay activities.</p>
+                </article>
+                <article class="card">
+                    <h3>Resident Updates</h3>
+                    <p>Follow important schedules, venues, reminders, and community service information.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="events" id="events">
+            <div class="section-head">
+                <h2>Featured Community Events</h2>
+                <p>Sample public schedule for Barangay San Isidro programs.</p>
+            </div>
+            <div class="event-list">
+                <article class="event-item">
+                    <div class="date"><span>MAY</span><strong>12</strong></div>
+                    <div>
+                        <h3>Barangay Clean-up Drive</h3>
+                        <p>Meet at the barangay hall before the morning clean-up route begins.</p>
+                    </div>
+                    <span class="tag">Environment</span>
+                </article>
+                <article class="event-item">
+                    <div class="date"><span>MAY</span><strong>18</strong></div>
+                    <div>
+                        <h3>Community Feeding Program</h3>
+                        <p>A resident support activity with volunteers assisting food preparation and distribution.</p>
+                    </div>
+                    <span class="tag">Support</span>
+                </article>
+                <article class="event-item">
+                    <div class="date"><span>MAY</span><strong>25</strong></div>
+                    <div>
+                        <h3>Disaster Preparedness Seminar</h3>
+                        <p>Preparedness reminders, safety practices, and coordination guidance for households.</p>
+                    </div>
+                    <span class="tag">Safety</span>
+                </article>
+            </div>
+        </section>
+
+        <section id="volunteer">
+            <div class="split">
+                <div>
+                    <div class="section-head" style="text-align: left; margin-left: 0;">
+                        <h2>Volunteer With The Community</h2>
+                        <p>
+                            Barangay programs work best when residents take part. Volunteers can help with registration,
+                            setup, distribution, attendance, venue support, and post-event clean-up.
+                        </p>
+                    </div>
+                    <a class="button button-primary" href="#contact">Ask About Volunteering</a>
+                </div>
+                <div class="photo" role="img" aria-label="Community volunteers working together"></div>
+            </div>
+        </section>
+
+        <section class="contact" id="contact">
+            <div class="section-head">
+                <h2>Contact Barangay San Isidro</h2>
+                <p>
+                    For event questions, volunteer coordination, or announcement updates, visit the barangay office
+                    or contact the assigned organizer.
+                </p>
+            </div>
+            <div class="grid">
+                <article class="card">
+                    <h3>Office</h3>
+                    <p>Barangay San Isidro, Surigao City, Surigao del Norte</p>
+                </article>
+                <article class="card">
+                    <h3>Hours</h3>
+                    <p>Monday to Friday, regular barangay office hours</p>
+                </article>
+                <article class="card">
+                    <h3>Updates</h3>
+                    <p>Check this website for event reminders and public announcements.</p>
+                </article>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        Barangay San Isidro EventCore Website
+    </footer>
+</body>
+</html>
