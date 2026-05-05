@@ -157,6 +157,13 @@ def register(request):
 def dashboard(request):
     profile = get_current_profile(request.user)
     now = timezone.now()
+    active_events = Event.objects.filter(
+        start_datetime__lte=now,
+        end_datetime__gte=now,
+    ).exclude(status__in=[Event.STATUS_COMPLETED, Event.STATUS_CANCELLED])
+    overdue_events = Event.objects.filter(
+        end_datetime__lt=now,
+    ).exclude(status__in=[Event.STATUS_COMPLETED, Event.STATUS_CANCELLED])
 
     total_budget = Event.objects.aggregate(total=Sum('budget'))['total'] or 0
     actual_resource_cost = Resource.objects.aggregate(total=Sum('actual_cost'))['total'] or 0
@@ -165,6 +172,8 @@ def dashboard(request):
     stats = {
         'total_events': Event.objects.count(),
         'upcoming_events': Event.objects.filter(start_datetime__gte=now).count(),
+        'active_events': active_events.count(),
+        'overdue_events': overdue_events.count(),
         'completed_events': Event.objects.filter(status=Event.STATUS_COMPLETED).count(),
         'total_people': EventCoreUser.objects.count(),
         'confirmed_participants': Participant.objects.filter(registration_status=Participant.STATUS_CONFIRMED).count(),
@@ -178,6 +187,8 @@ def dashboard(request):
     context = {
         'stats': stats,
         'upcoming_events_list': Event.objects.filter(start_datetime__gte=now).order_by('start_datetime')[:5],
+        'active_events_list': active_events.order_by('end_datetime')[:5],
+        'overdue_events_list': overdue_events.order_by('end_datetime')[:5],
         'recent_feedback': Feedback.objects.select_related('event', 'participant__user')[:5],
         'recent_notifications': profile.notifications.all()[:5] if profile else [],
     }
@@ -197,6 +208,9 @@ def event_list(request):
     query = request.GET.get('q', '').strip()
     event_type = request.GET.get('event_type', '').strip()
     status = request.GET.get('status', '').strip()
+    timeframe = request.GET.get('timeframe', '').strip()
+    sort = request.GET.get('sort', 'soonest').strip()
+    now = timezone.now()
 
     if query:
         events = events.filter(
@@ -208,14 +222,54 @@ def event_list(request):
         events = events.filter(event_type=event_type)
     if status:
         events = events.filter(status=status)
+    if timeframe == 'upcoming':
+        events = events.filter(start_datetime__gte=now)
+    elif timeframe == 'active':
+        events = events.filter(start_datetime__lte=now, end_datetime__gte=now).exclude(
+            status__in=[Event.STATUS_COMPLETED, Event.STATUS_CANCELLED]
+        )
+    elif timeframe == 'past':
+        events = events.filter(end_datetime__lt=now)
+    elif timeframe == 'overdue':
+        events = events.filter(end_datetime__lt=now).exclude(
+            status__in=[Event.STATUS_COMPLETED, Event.STATUS_CANCELLED]
+        )
+
+    sort_options = {
+        'soonest': 'start_datetime',
+        'latest': '-start_datetime',
+        'title': 'title',
+        'capacity': '-capacity',
+    }
+    events = events.order_by(sort_options.get(sort, 'start_datetime'))
+    events = list(events)
+    for event in events:
+        event.needs_status_review = (
+            event.end_datetime < now
+            and event.status not in [Event.STATUS_COMPLETED, Event.STATUS_CANCELLED]
+        )
 
     context = {
         'events': events,
         'query': query,
         'selected_event_type': event_type,
         'selected_status': status,
+        'selected_timeframe': timeframe,
+        'selected_sort': sort if sort in sort_options else 'soonest',
         'event_type_choices': Event.EVENT_TYPE_CHOICES,
         'status_choices': Event.STATUS_CHOICES,
+        'timeframe_choices': [
+            ('upcoming', 'Upcoming'),
+            ('active', 'Happening now'),
+            ('past', 'Past'),
+            ('overdue', 'Overdue action'),
+        ],
+        'sort_choices': [
+            ('soonest', 'Soonest first'),
+            ('latest', 'Latest first'),
+            ('title', 'Title A-Z'),
+            ('capacity', 'Largest capacity'),
+        ],
         'can_manage_events': user_has_role(request.user, *MANAGER_ROLES),
     }
     return render(request, 'events/event_list.html', context)

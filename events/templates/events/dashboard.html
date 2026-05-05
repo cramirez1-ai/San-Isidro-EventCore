@@ -13,8 +13,8 @@
             </p>
             <div class="d-flex flex-wrap gap-2 mt-4">
                 <span class="quick-chip">Capacity and waitlist ready</span>
-                <span class="quick-chip">Role-protected actions</span>
-                <span class="quick-chip">SQLite-backed records</span>
+                <span class="quick-chip">{{ stats.active_events }} active now</span>
+                <span class="quick-chip">{{ stats.overdue_events }} need review</span>
             </div>
         </div>
         <div class="col-lg-4 text-lg-end">
@@ -76,6 +76,53 @@
         </div>
     </div>
 </section>
+
+{% if active_events_list or overdue_events_list %}
+<section class="row g-3 mb-4">
+    <div class="col-lg-6">
+        <div class="feature-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h2 class="h5 section-title mb-1">Happening Now</h2>
+                    <p class="small text-muted mb-0">Events currently inside their scheduled time window.</p>
+                </div>
+                <span class="badge badge-soft">{{ stats.active_events }}</span>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for event in active_events_list %}
+                    <a href="{% url 'event_detail' event.pk %}" class="list-group-item list-group-item-action px-0">
+                        <strong>{{ event.title }}</strong>
+                        <div class="small text-muted">Ends {{ event.end_datetime|date:"M d, Y g:i A" }}</div>
+                    </a>
+                {% empty %}
+                    <div class="text-muted small">No active events right now.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-lg-6">
+        <div class="feature-card p-3 h-100">
+            <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                <div>
+                    <h2 class="h5 section-title mb-1">Needs Status Review</h2>
+                    <p class="small text-muted mb-0">Past events still marked planned or ongoing.</p>
+                </div>
+                <span class="badge text-bg-warning">{{ stats.overdue_events }}</span>
+            </div>
+            <div class="list-group list-group-flush">
+                {% for event in overdue_events_list %}
+                    <a href="{% url 'event_detail' event.pk %}" class="list-group-item list-group-item-action px-0">
+                        <strong>{{ event.title }}</strong>
+                        <div class="small text-muted">Ended {{ event.end_datetime|date:"M d, Y g:i A" }}</div>
+                    </a>
+                {% empty %}
+                    <div class="text-muted small">No stale event statuses.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endif %}
 
 <section class="row g-3 mb-4">
     <div class="col-md-4">
