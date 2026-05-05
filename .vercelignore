@@ -1,0 +1,15 @@
+# Deploy the website only.
+# Vercel should ignore the Django app and serve public/index.html.
+
+EventCore/
+events/
+manage.py
+requirements.txt
+db.sqlite3
+venv/
+api/
+
+*.py
+*.pyc
+__pycache__/
+*.log
