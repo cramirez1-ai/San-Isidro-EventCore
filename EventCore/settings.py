@@ -34,6 +34,18 @@ ALLOWED_HOSTS = os.environ.get(
     '127.0.0.1,localhost,testserver',
 )
 ALLOWED_HOSTS = [host.strip() for host in ALLOWED_HOSTS.split(',') if host.strip()]
+if os.environ.get('VERCEL_URL'):
+    ALLOWED_HOSTS.append(os.environ['VERCEL_URL'])
+
+CSRF_TRUSTED_ORIGINS = os.environ.get(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://*.vercel.app',
+)
+CSRF_TRUSTED_ORIGINS = [
+    origin.strip()
+    for origin in CSRF_TRUSTED_ORIGINS.split(',')
+    if origin.strip()
+]
 
 
 # Application definition
